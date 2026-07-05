@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>たべかえっこ｜給食メニューのアレルギー代用レシピ</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&family=Shippori+Mincho:wght@500;700&display=swap');
+
+  :root{
+    --cream: #FAF6EC;
+    --rice: #F3E3B8;
+    --rice-deep: #E2C679;
+    --leaf: #3E5C4A;
+    --leaf-deep: #294438;
+    --coral: #E8917B;
+    --ink: #2B2620;
+    --line: #D9CBA3;
+    --white: #FFFDF8;
+  }
+
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Zen Maru Gothic', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  .wrap{ max-width: 720px; margin: 0 auto; padding: 0 20px 80px; }
+
+  /* ---------- Header ---------- */
+  header{
+    padding: 36px 20px 28px;
+    text-align: center;
+    position: relative;
+  }
+  .eyebrow{
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    color: var(--leaf);
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  h1{
+    font-family: 'Shippori Mincho', serif;
+    font-size: 30px;
+    font-weight: 700;
+    margin: 0 0 8px;
+    color: var(--leaf-deep);
+    letter-spacing: 0.02em;
+  }
+  h1 .accent{ color: var(--coral); }
+  .sub{
+    font-size: 13.5px;
+    color: #6b6354;
+    line-height: 1.7;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  /* ---------- Search Card ---------- */
+  .card{
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 24px 22px;
+    box-shadow: 0 2px 0 var(--line);
+  }
+  .card + .card{ margin-top: 18px; }
+
+  .field-label{
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--leaf-deep);
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .menu-input-row{
+    display:flex;
+    gap: 8px;
+  }
+  input[type="text"]{
+    flex: 1;
+    font-family: inherit;
+    font-size: 16px;
+    padding: 13px 14px;
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    background: var(--cream);
+    color: var(--ink);
+    outline: none;
+    transition: border-color .15s ease;
+  }
+  input[type="text"]:focus{
+    border-color: var(--leaf);
+  }
+  input[type="text"]::placeholder{ color: #a89b78; }
+
+  .search-btn{
+    background: var(--leaf-deep);
+    color: var(--white);
+    border: none;
+    border-radius: 12px;
+    padding: 0 20px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 14.5px;
+    cursor: pointer;
+    transition: background .15s ease, transform .1s ease;
+  }
+  .search-btn:hover{ background: var(--leaf); }
+  .search-btn:active{ transform: scale(0.97); }
+  .search-btn:focus-visible{ outline: 2px solid var(--coral); outline-offset: 2px; }
+
+  .quick-examples{
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .quick-chip{
+    font-size: 12px;
+    background: var(--rice);
+    color: var(--leaf-deep);
+    border: none;
+    border-radius: 999px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 500;
+  }
+  .quick-chip:hover{ background: var(--rice-deep); }
+  .quick-chip:focus-visible{ outline: 2px solid var(--coral); outline-offset: 2px; }
+
+  /* ---------- Allergy chips ---------- */
+  .allergy-grid{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .allergy-chip{
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 700;
+    padding: 9px 16px;
+    border-radius: 999px;
+    border: 1.5px solid var(--line);
+    background: var(--cream);
+    color: #6b6354;
+    cursor: pointer;
+    transition: all .15s ease;
+  }
+  .allergy-chip.active{
+    background: var(--coral);
+    border-color: var(--coral);
+    color: var(--white);
+  }
+  .allergy-chip:focus-visible{ outline: 2px solid var(--leaf); outline-offset: 2px; }
+
+  /* ---------- Result ---------- */
+  #result{ margin-top: 18px; }
+
+  .result-header{
+    display:flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .menu-pill{
+    font-family: 'Shippori Mincho', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink);
+    background: var(--rice);
+    padding: 8px 16px;
+    border-radius: 10px;
+  }
+  .arrow{ color: var(--leaf); font-size: 20px; }
+
+  .recipe-card{
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .recipe-head{
+    background: var(--leaf-deep);
+    color: var(--white);
+    padding: 16px 20px;
+    display:flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .recipe-head h3{
+    font-family: 'Shippori Mincho', serif;
+    font-size: 17px;
+    margin: 0;
+    font-weight: 700;
+  }
+  .safe-tags{
+    display:flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .safe-tag{
+    font-size: 10.5px;
+    background: rgba(255,255,255,0.18);
+    padding: 3px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .recipe-body{ padding: 18px 20px 20px; }
+  .recipe-section{ margin-bottom: 14px; }
+  .recipe-section:last-child{ margin-bottom: 0; }
+  .recipe-section .label{
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--leaf);
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+    display:block;
+  }
+  .ingredient-list{
+    list-style: none;
+    margin: 0; padding: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 12px;
+  }
+  .ingredient-list li{
+    font-size: 13.5px;
+    color: var(--ink);
+    display:flex;
+    justify-content: space-between;
+    border-bottom: 1px dashed var(--line);
+    padding-bottom: 4px;
+  }
+  .ingredient-list li .amt{ color: #8a7e60; }
+
+  .steps{
+    margin: 0; padding: 0;
+    list-style: none;
+    counter-reset: step;
+  }
+  .steps li{
+    counter-increment: step;
+    font-size: 13.5px;
+    line-height: 1.7;
+    padding-left: 28px;
+    position: relative;
+    margin-bottom: 8px;
+  }
+  .steps li::before{
+    content: counter(step);
+    position: absolute;
+    left: 0; top: 0;
+    width: 20px; height: 20px;
+    background: var(--rice);
+    color: var(--leaf-deep);
+    font-weight: 700;
+    font-size: 11px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .tip-box{
+    background: var(--cream);
+    border-left: 3px solid var(--coral);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: #5a5341;
+  }
+  .tip-box .tip-label{
+    font-weight: 700;
+    color: var(--coral);
+    margin-right: 4px;
+  }
+
+  /* ---------- Photo slot (placeholder for completed-dish photos) ---------- */
+  .photo-slot{
+    margin-top: 4px;
+    aspect-ratio: 4 / 3;
+    border-radius: 12px;
+    border: 1.5px dashed var(--line);
+    background: repeating-linear-gradient(
+      135deg,
+      var(--cream) 0px, var(--cream) 10px,
+      #f3ecd9 10px, #f3ecd9 20px
+    );
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #a89b78;
+    text-align: center;
+    overflow: hidden;
+    position: relative;
+  }
+  .photo-slot .icon{ font-size: 26px; margin-bottom: 6px; opacity: .7; }
+  .photo-slot .msg{ font-size: 12px; line-height: 1.6; padding: 0 16px; }
+  .photo-slot img{
+    width: 100%; height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+  }
+
+  .no-result{
+    text-align: center;
+    padding: 40px 20px;
+    color: #8a7e60;
+    font-size: 13.5px;
+    line-height: 1.8;
+  }
+  .no-result .big{ font-size: 28px; margin-bottom: 8px; }
+
+  /* ---------- Notice card ---------- */
+  .notice-card{
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--leaf);
+    border-radius: 14px;
+    padding: 16px 18px;
+    font-size: 12px;
+    line-height: 1.8;
+    color: #5a5341;
+    margin-top: 18px;
+  }
+  .notice-card .notice-title{
+    font-weight: 700;
+    color: var(--leaf-deep);
+    font-size: 13px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .notice-card ul{
+    margin: 0 0 10px;
+    padding-left: 18px;
+  }
+  .notice-card ul:last-child{ margin-bottom: 0; }
+  .notice-card li{ margin-bottom: 4px; }
+
+  /* ---------- Match list (when allergens selected, no menu typed) ---------- */
+  .match-list-card{
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 18px 20px;
+    margin-top: 16px;
+  }
+  .match-list-card .match-title{
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--leaf-deep);
+    margin-bottom: 10px;
+  }
+  .match-pills{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .match-pill{
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    background: var(--cream);
+    border: 1.5px solid var(--line);
+    color: var(--ink);
+    padding: 8px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all .15s ease;
+  }
+  .match-pill:hover{ background: var(--rice); border-color: var(--rice-deep); }
+  .match-pill:focus-visible{ outline: 2px solid var(--leaf); outline-offset: 2px; }
+  .match-empty{
+    font-size: 12.5px;
+    color: #a89b78;
+    line-height: 1.7;
+  }
+  .request-btn{
+    display: inline-block;
+    margin-top: 16px;
+    background: var(--coral);
+    color: var(--white);
+    border: none;
+    border-radius: 999px;
+    padding: 11px 22px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 13.5px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background .15s ease;
+  }
+  .request-btn:hover{ background: #d97c64; }
+  .request-btn:focus-visible{ outline: 2px solid var(--leaf); outline-offset: 2px; }
+
+  footer{
+    text-align: center;
+    padding: 30px 20px 10px;
+    font-size: 11.5px;
+    color: #a89b78;
+    line-height: 1.8;
+  }
+
+  @media (max-width: 420px){
+    .ingredient-list{ grid-template-columns: 1fr; }
+    h1{ font-size: 25px; }
+  }
+
+  @media (prefers-reduced-motion: no-preference){
+    .recipe-card{ animation: rise 0.35s ease; }
+    @keyframes rise{
+      from{ opacity:0; transform: translateY(8px); }
+      to{ opacity:1; transform: translateY(0); }
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">アレルギーっ子のごはん作戦本部</div>
+    <h1>たべか<span class="accent">え</span>っこ</h1>
+    <p class="sub">給食の献立にある料理名を入れるだけ。<br>小麦・卵・乳などを使わない「代わりレシピ」をすぐに見つけられます。</p>
+  </header>
+
+  <div class="card">
+    <span class="field-label">① 給食の献立名を入れてみる</span>
+    <div class="menu-input-row">
+      <input type="text" id="menuInput" placeholder="例：春巻き" autocomplete="off">
+      <button class="search-btn" id="searchBtn">代用さがす</button>
+    </div>
+    <div class="quick-examples">
+      <button class="quick-chip" data-menu="春巻き">春巻き</button>
+      <button class="quick-chip" data-menu="クリームシチュー">クリームシチュー</button>
+      <button class="quick-chip" data-menu="から揚げ">から揚げ</button>
+      <button class="quick-chip" data-menu="ハンバーグ">ハンバーグ</button>
+      <button class="quick-chip" data-menu="蒸しパン">蒸しパン</button>
+      <button class="quick-chip" data-menu="食パン">食パン</button>
+      <button class="quick-chip" data-menu="バウムクーヘン">バウムクーヘン</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="field-label">② 避けたいものを選ぶ（複数選べます）</span>
+    <div class="allergy-grid" id="allergyGrid">
+      <button class="allergy-chip" data-allergen="wheat">小麦</button>
+      <button class="allergy-chip" data-allergen="egg">卵</button>
+      <button class="allergy-chip" data-allergen="milk">乳</button>
+      <button class="allergy-chip" data-allergen="soy">大豆</button>
+    </div>
+    <div id="matchList"></div>
+  </div>
+
+  <div id="result"></div>
+
+  <div class="notice-card">
+    <div class="notice-title">⚠️ ご利用にあたっての注意事項</div>
+    <ul>
+      <li>小麦なしを選んだ場合でも、レシピには醤油が含まれることがあります。醤油は各ご家庭で、小麦不使用のものに代用してください。</li>
+      <li>対応しているアレルゲンは現在「小麦・卵・乳・大豆」の4品目です。ナッツ類などは順次対応予定です。</li>
+      <li>このサイトはレシピ提供のみを目的としています。アレルギーの詳しい治療方針は医師にご相談のうえ、学校や保育園・幼稚園とご協議ください。</li>
+    </ul>
+  </div>
+
+  <footer>
+    このアプリはプロトタイプです。実際のアレルギー対応は医師・栄養士にご確認ください。<br>
+    考案：おさんぽ日和｜学校栄養士 × グルテンフリー
+  </footer>
+
+</div>
+
+<script>
+const RECIPES = {
+  "春巻き": {
+    photo: "", // 完成写真のURLをここに入れると自動で表示されます（空欄なら準備中の枠が出ます）
+    safe: { wheat: true, egg: true, milk: true, soy: true },
+    title: "米粉の皮で作る くるくる春巻き",
+    tags: ["小麦不使用", "卵不使用", "乳不使用"],
+    ingredients: [
+      ["米粉", "100g"],
+      ["水", "130ml"],
+      ["片栗粉", "大さじ1"],
+      ["塩", "少々"],
+      ["豚ひき肉", "150g"],
+      ["キャベツ", "1/4個"],
+      ["人参", "1/3本"],
+      ["米油（焼き用）", "適量"]
+    ],
+    steps: [
+      "米粉・水・片栗粉・塩をボウルでよく混ぜ、薄いクレープ状の皮を作る生地にする。",
+      "フライパンを薄く油でひき、生地を薄く広げて両面さっと焼き、皮を作る（10枚分目安）。",
+      "ひき肉とみじん切りの野菜を炒めて具を作り、塩こしょうで味を整える。",
+      "皮に具をのせて巻き、巻き終わりを少量の水で留める。",
+      "フライパンで全体に焼き色がつくまで焼く（揚げずに焼き春巻きでも可）。"
+    ],
+    tip: "皮が破れやすいので、具は少なめ・巻きはゆるめが安心です。冷凍も可能なので、給食と同じ日にまとめて作っておくと持参が楽になります。"
+  },
+  "クリームシチュー": {
+    photo: "",
+    safe: { wheat: true, egg: true, milk: true, soy: true },
+    title: "豆乳とお米粉のやさしいシチュー",
+    tags: ["小麦不使用", "卵不使用", "乳不使用"],
+    ingredients: [
+      ["鶏もも肉", "150g"],
+      ["じゃがいも", "2個"],
+      ["人参", "1本"],
+      ["玉ねぎ", "1個"],
+      ["豆乳（無調整）", "400ml"],
+      ["米粉", "大さじ2"],
+      ["米油", "大さじ1"],
+      ["塩", "小さじ1/2"]
+    ],
+    steps: [
+      "野菜と鶏肉を一口大に切る。",
+      "鍋に米油を熱し、鶏肉と野菜を炒める。",
+      "ひたひたの水を加え、野菜が柔らかくなるまで煮る。",
+      "豆乳と米粉を別の器でよく溶いてから鍋に加える。",
+      "とろみがつくまで弱火で煮て、塩で味を整える。"
+    ],
+    tip: "米粉は冷たい豆乳に溶いてから加えると、ダマになりにくいです。"
+  },
+  "から揚げ": {
+    photo: "",
+    safe: { wheat: true, egg: false, milk: true, soy: true },
+    title: "米粉カリッと から揚げ",
+    tags: ["小麦不使用", "乳不使用"],
+    ingredients: [
+      ["鶏もも肉", "300g"],
+      ["醤油", "大さじ1.5"],
+      ["おろし生姜", "小さじ1"],
+      ["おろしにんにく", "小さじ1"],
+      ["米粉", "適量（衣用）"],
+      ["米油（揚げ油）", "適量"]
+    ],
+    steps: [
+      "鶏肉を一口大に切り、醤油・生姜・にんにくに15分以上漬け込む。",
+      "汁気を軽くきり、米粉をまぶす。",
+      "170度の油でじっくり揚げ、最後に180度で二度揚げしてカリッとさせる。"
+    ],
+    tip: "卵を使う衣のレシピが多いですが、米粉だけでも十分カリッと仕上がります。卵アレルギーが無い場合は卵を1個加えるとふっくら仕上がります。"
+  },
+  "ハンバーグ": {
+    photo: "",
+    safe: { wheat: true, egg: true, milk: true, soy: true },
+    title: "米粉とすりおろし野菜の つなぎハンバーグ",
+    tags: ["小麦不使用", "卵不使用", "乳不使用"],
+    ingredients: [
+      ["合い挽き肉", "250g"],
+      ["玉ねぎ（すりおろし）", "1/2個"],
+      ["米粉", "大さじ2"],
+      ["塩", "小さじ1/2"],
+      ["こしょう", "少々"],
+      ["米油", "適量"]
+    ],
+    steps: [
+      "玉ねぎをすりおろし、軽く加熱して水分を飛ばす。",
+      "ひき肉・玉ねぎ・米粉・塩こしょうをよく練り混ぜる。",
+      "小判型にまとめ、中央をくぼませる。",
+      "フライパンで両面じっくり焼き、中まで火を通す。"
+    ],
+    tip: "パン粉と卵が入れられない場合、米粉とすりおろし玉ねぎの水分でしっかりつながります。"
+  },
+  "蒸しパン": {
+    photo: "",
+    safe: { wheat: true, egg: true, milk: true, soy: true },
+    title: "米粉のふわふわ蒸しパン",
+    tags: ["小麦不使用", "卵不使用", "乳不使用"],
+    ingredients: [
+      ["米粉", "150g"],
+      ["砂糖", "40g"],
+      ["ベーキングパウダー", "小さじ2"],
+      ["豆乳（無調整）", "150ml"],
+      ["米油", "大さじ1"]
+    ],
+    steps: [
+      "米粉・砂糖・ベーキングパウダーをボウルで混ぜる。",
+      "豆乳と米油を加えて、なめらかになるまで混ぜる。",
+      "カップに入れ、蒸し器で15分ほど蒸す。",
+      "竹串を刺して生地がついてこなければ完成。"
+    ],
+    tip: "蒸し時間が短いと中心がベタつきます。竹串チェックを忘れずに。"
+  },
+  "食パン": {
+    photo: "",
+    safe: { wheat: true, egg: true, milk: true, soy: true },
+    title: "米粉食パン",
+    tags: ["小麦不使用", "卵不使用", "乳不使用"],
+    ingredients: [
+      ["米粉", "160g"],
+      ["てんさい糖", "15g"],
+      ["塩", "3〜5g"],
+      ["ドライイースト", "2g強"],
+      ["オリーブ油", "13g"],
+      ["とろみ水（ぬるめ）", "150ccの9割程度"],
+      ["ハーブ", "適量（仕上げ用）"]
+    ],
+    steps: [
+      "とろみ水を作る。水150ccを沸騰させ、片栗粉小さじ1弱を加えて冷まし、38〜39度（お風呂よりぬるめ）にしておく。",
+      "ボウルに米粉・てんさい糖・塩・ドライイースト・オリーブ油・とろみ水（9割）を入れて10分ひたすら混ぜる。気温や湿度で吸水量が変わるので、生地の固さを見ながら残りのとろみ水を調整する。",
+      "ラップをして1次発酵20分。よく混ぜてトロトロにする。",
+      "型の8分目まで生地を入れ、ラップをして2次発酵30分。",
+      "オーブンを180度に予熱する。型にホイルをかけて180度で25分焼く。",
+      "ホイルを外し、オリーブ油を塗ってハーブを振り、200度で8分焼く。",
+      "型から取り出し、網の上で冷ます。粗熱が取れたらキッチンペーパーとラップで包み、保存袋へ。"
+    ],
+    tip: "米粉は乾燥に弱いので、ラップやホイルは隙間なくぴったりと。1本そのまま持って行って、その場で切るとプレゼントにも喜ばれます。"
+  },
+  "バウムクーヘン": {
+    photo: "",
+    safe: { wheat: true, egg: false, milk: false, soy: true },
+    title: "米粉のバウムクーヘンといろいろ（フィナンシェ付き）",
+    tags: ["小麦不使用"],
+    ingredients: [
+      ["［バウムクーヘン］米粉", "90g"],
+      ["アーモンドパウダー", "10g"],
+      ["卵", "1個"],
+      ["牛乳", "60cc"],
+      ["とかしバター", "20g"],
+      ["こめ油", "9g（大さじ1）"],
+      ["メープルシロップ", "18g（大さじ2）"],
+      ["さとう", "18g（大さじ2）"],
+      ["ベーキングパウダー", "3g（小さじ1）"],
+      ["［フィナンシェ］バター", "55g"],
+      ["卵白", "2個分（70g）"],
+      ["さとう", "50g"],
+      ["米粉", "25g"],
+      ["片栗粉", "5g"],
+      ["アーモンドパウダー", "30g"],
+      ["バトンオランジュ", "5本"]
+    ],
+    steps: [
+      "【フィナンシェ】フライパンでバターを焦がしバターにする。",
+      "卵白とさとうをよく混ぜ、米粉・片栗粉・アーモンドパウダーを加えて混ぜる。",
+      "刻んだオレンジを入れた型に流し入れ、190度に予熱したオーブンで15分焼く。",
+      "【バウムクーヘン】ボウルに卵を入れ、牛乳・とかしバター・こめ油を加える。",
+      "さとう・メープルシロップも混ぜ、米粉・アーモンドパウダー・ベーキングパウダーを加えてしっかり混ぜる。",
+      "卵焼き機に薄く流し入れて焼き、1本目の芯を作る。あとは同じように重ねて焼いていく。",
+      "中央に芯を作りたい場合は、割りばしにアルミホイルを巻いて油を塗ったものを使う。"
+    ],
+    tip: "このレシピは卵・乳製品を使用しています。小麦のみ対応のレシピです。卵・乳アレルギーがある場合はご注意ください。"
+  }
+};
+
+const allergyLabels = { wheat: "小麦", egg: "卵", milk: "乳", soy: "大豆" };
+let activeAllergens = new Set();
+
+// tagsはsafeオブジェクトから自動生成する（手動記入のtagsと食い違うミスを防ぐため）
+function tagsFromSafe(safe){
+  return Object.keys(allergyLabels)
+    .filter(key => safe[key] === true)
+    .map(key => `${allergyLabels[key]}不使用`);
+}
+
+const menuInput = document.getElementById('menuInput');
+const searchBtn = document.getElementById('searchBtn');
+const resultDiv = document.getElementById('result');
+const allergyGrid = document.getElementById('allergyGrid');
+
+allergyGrid.addEventListener('click', (e) => {
+  const chip = e.target.closest('.allergy-chip');
+  if (!chip) return;
+  const key = chip.dataset.allergen;
+  chip.classList.toggle('active');
+  if (activeAllergens.has(key)) activeAllergens.delete(key);
+  else activeAllergens.add(key);
+  renderMatchList();
+});
+
+function renderMatchList(){
+  const matchListDiv = document.getElementById('matchList');
+  if (activeAllergens.size === 0){
+    matchListDiv.innerHTML = '';
+    return;
+  }
+
+  const matches = Object.entries(RECIPES).filter(([name, r]) => {
+    return [...activeAllergens].every(a => r.safe[a] === true);
+  });
+
+  if (matches.length === 0){
+    matchListDiv.innerHTML = `
+      <div class="match-list-card">
+        <div class="match-title">この条件に合うレシピ</div>
+        <div class="match-empty">条件に合うレシピがまだありません。献立名で検索するか、リクエストしてみてください。</div>
+      </div>`;
+    return;
+  }
+
+  matchListDiv.innerHTML = `
+    <div class="match-list-card">
+      <div class="match-title">この条件に合うレシピ（${matches.length}件）</div>
+      <div class="match-pills">
+        ${matches.map(([name, r]) => `<button class="match-pill" data-menu="${escapeHTML(name)}">${escapeHTML(r.title)}</button>`).join('')}
+      </div>
+    </div>`;
+
+  matchListDiv.querySelectorAll('.match-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      menuInput.value = btn.dataset.menu;
+      runSearch();
+      menuInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  });
+}
+
+document.querySelectorAll('.quick-chip').forEach(btn => {
+  btn.addEventListener('click', () => {
+    menuInput.value = btn.dataset.menu;
+    runSearch();
+  });
+});
+
+searchBtn.addEventListener('click', runSearch);
+menuInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') runSearch();
+});
+
+function runSearch(){
+  const query = menuInput.value.trim();
+  if (!query){
+    resultDiv.innerHTML = '';
+    return;
+  }
+
+  const recipe = RECIPES[query];
+
+  if (!recipe){
+    const mailto = `mailto:pan.kyositu.w@gmail.com?subject=${encodeURIComponent('【たべかえっこ】レシピリクエスト：' + query)}&body=${encodeURIComponent('給食メニュー名：' + query + '\n\nこのメニューの代用レシピを追加してほしいです。\n\n（よければ詳しく教えてください：アレルギーの種類、地域、お子さんの年齢など）\n')}`;
+    resultDiv.innerHTML = `
+      <div class="card no-result">
+        <div class="big">🍚</div>
+        まだ「${escapeHTML(query)}」の代用レシピは登録されていません。<br>
+        春巻き・クリームシチュー・から揚げ・ハンバーグ・蒸しパンでお試しください。
+        <br>
+        <a class="request-btn" href="${mailto}">このメニューをリクエストする</a>
+      </div>`;
+    return;
+  }
+
+  // Check if recipe is safe for all selected allergens
+  const unsafe = [...activeAllergens].filter(a => recipe.safe[a] !== true);
+
+  let warningHTML = '';
+  if (unsafe.length > 0){
+    const names = unsafe.map(a => allergyLabels[a]).join('・');
+    warningHTML = `
+      <div class="tip-box" style="margin-bottom:14px; border-left-color:#c0392b;">
+        <span class="tip-label" style="color:#c0392b;">確認</span>
+        このレシピは「${names}」を含む可能性のある材料があります。表示中の材料を置き換えてご利用ください。
+      </div>`;
+  }
+
+  const photoHTML = recipe.photo
+    ? `<div class="recipe-section"><span class="label">完成写真</span><div class="photo-slot"><img src="${recipe.photo}" alt="${escapeHTML(recipe.title)}の完成写真"></div></div>`
+    : `<div class="recipe-section"><span class="label">完成写真</span><div class="photo-slot"><div class="icon">📷</div><div class="msg">完成写真は準備中です<br>あとから追加します</div></div></div>`;
+
+  resultDiv.innerHTML = `
+    <div class="result-header">
+      <div class="menu-pill">${escapeHTML(query)}</div>
+      <div class="arrow">→</div>
+      <div class="menu-pill" style="background: var(--leaf); color: white;">${recipe.title}</div>
+    </div>
+    ${warningHTML}
+    <div class="recipe-card">
+      <div class="recipe-head">
+        <h3>${recipe.title}</h3>
+        <div class="safe-tags">
+          ${tagsFromSafe(recipe.safe).map(t => `<span class="safe-tag">${t}</span>`).join('')}
+        </div>
+      </div>
+      <div class="recipe-body">
+        <div class="recipe-section">
+          <span class="label">材料</span>
+          <ul class="ingredient-list">
+            ${recipe.ingredients.map(([name, amt]) => `<li><span>${name}</span><span class="amt">${amt}</span></li>`).join('')}
+          </ul>
+        </div>
+        <div class="recipe-section">
+          <span class="label">作り方</span>
+          <ol class="steps">
+            ${recipe.steps.map(s => `<li>${s}</li>`).join('')}
+          </ol>
+        </div>
+        ${photoHTML}
+        <div class="recipe-section">
+          <div class="tip-box"><span class="tip-label">先生のひとこと</span>${recipe.tip}</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function escapeHTML(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+</script>
+
+</body>
+</html>
